@@ -16,7 +16,7 @@ import { useNavigate } from "react-router";
 const Layout = () => {
   const navigate = useNavigate();
 
-  const handleLogout = (e: React.MouseEvent) => {
+  const handleLogout = () => {
     localStorage.removeItem("access_token");
     localStorage.removeItem("user_id");
     navigate("/");

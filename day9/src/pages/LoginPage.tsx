@@ -26,7 +26,7 @@ export default function LoginPage() {
       } else {
         setLoginError(res.message || "Login failed");
       }
-    } catch (error) {
+    } catch {
       setLoginError("Login failed");
     }
   };

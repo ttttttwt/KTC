@@ -60,12 +60,13 @@ export default function UpdateTaskPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!form || !id) return;
+    if (!form || !id || !task) return;
 
     const user_id = Number(localStorage.getItem("user_id")) || 1;
     const now = new Date().toISOString();
 
     const taskData = {
+      ...task,
       ...form,
       updated_time: now,
       updated_by: user_id,

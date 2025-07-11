@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getMyTasks } from "../service";
+import { getMyTasks, deleteTask } from "../service";
 import { useNavigate } from "react-router";
 import type { Task } from "../type";
 
@@ -43,6 +43,31 @@ export default function MyTasksPage() {
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString();
+  };
+
+  const handleDeleteTask = async (
+    taskId: string,
+    taskTitle: string,
+    e: React.MouseEvent
+  ) => {
+    e.stopPropagation(); // Prevent card click navigation
+
+    if (
+      window.confirm(
+        `Are you sure you want to delete "${taskTitle}"? This action cannot be undone.`
+      )
+    ) {
+      try {
+        await deleteTask(taskId);
+        // Remove the deleted task from state
+        setTasks((prevTasks) =>
+          prevTasks.filter((task) => String(task.id) !== taskId)
+        );
+      } catch (error) {
+        console.error("Failed to delete task:", error);
+        alert("Failed to delete task. Please try again.");
+      }
+    }
   };
 
   return (
@@ -99,13 +124,36 @@ export default function MyTasksPage() {
                     <h2 className="text-lg font-bold text-gray-900 line-clamp-2 group-hover:text-indigo-600 transition-colors leading-tight">
                       {task.title}
                     </h2>
-                    <span
-                      className={`px-2 py-1 ${getPriorityClass(
-                        task.priority
-                      )} text-xs font-semibold rounded-full flex-shrink-0 ml-2`}
-                    >
-                      {task.priority.toUpperCase()}
-                    </span>
+                    <div className="flex items-center space-x-2 flex-shrink-0 ml-2">
+                      <span
+                        className={`px-2 py-1 ${getPriorityClass(
+                          task.priority
+                        )} text-xs font-semibold rounded-full`}
+                      >
+                        {task.priority.toUpperCase()}
+                      </span>
+                      <button
+                        onClick={(e) =>
+                          handleDeleteTask(String(task.id), task.title, e)
+                        }
+                        className="p-1 text-red-400 hover:text-red-600 hover:bg-red-50 rounded-full transition-colors"
+                        title="Delete task"
+                      >
+                        <svg
+                          className="w-4 h-4"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth="2"
+                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                          />
+                        </svg>
+                      </button>
+                    </div>
                   </div>
 
                   <p className="text-gray-600 text-sm line-clamp-2 mb-3">

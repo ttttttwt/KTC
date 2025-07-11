@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router";
-import { getTaskById, updateTask } from "../service";
+import { getTaskById, updateTask, deleteTask } from "../service";
 import type { Task } from "../type";
 
 export default function UpdateTaskPage() {
@@ -79,6 +79,24 @@ export default function UpdateTaskPage() {
 
     await updateTask(id, taskData);
     navigate("/my-tasks");
+  };
+
+  const handleDeleteTask = async () => {
+    if (!id || !task) return;
+
+    if (
+      window.confirm(
+        `Are you sure you want to delete "${task.title}"? This action cannot be undone.`
+      )
+    ) {
+      try {
+        await deleteTask(id);
+        navigate("/my-tasks");
+      } catch (error) {
+        console.error("Failed to delete task:", error);
+        alert("Failed to delete task. Please try again.");
+      }
+    }
   };
 
   if (!task || !form) {
@@ -422,6 +440,13 @@ export default function UpdateTaskPage() {
                 className="flex-1 py-3 px-6 border border-gray-300 text-gray-700 font-semibold rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition duration-200"
               >
                 Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleDeleteTask}
+                className="flex-1 py-3 px-6 bg-gradient-to-r from-red-600 to-red-700 text-white font-semibold rounded-lg hover:from-red-700 hover:to-red-800 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transform transition duration-200 hover:scale-[1.02] active:scale-[0.98]"
+              >
+                Delete Task
               </button>
               <button
                 type="submit"

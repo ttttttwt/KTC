@@ -61,3 +61,11 @@ export const updateTask = async (task_id: string, task: Omit<Task, "id">) => {
   });
   return response.json();
 };
+
+export const deleteTask = async (task_id: string) => {
+  const response = await fetch(`${baseUrl}/workspaces/tasks/${task_id}`, {
+    method: "DELETE",
+    headers: defaultHeaders,
+  });
+  return response.json();
+};

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { getOurTasks, getTaskById } from "../service";
 import type { Task } from "../type";
+import TaskDetailModal from "../components/Modal";
 
 export default function OurTasksPage() {
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -148,8 +149,8 @@ export default function OurTasksPage() {
                     >
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center">
-                          <div className="flex-shrink-0 h-8 w-8 bg-indigo-100 rounded-full flex items-center justify-center">
-                            <span className="text-xs font-medium text-indigo-600">
+                          <div className="flex-shrink-0 p-2 bg-indigo-100 rounded-full flex items-center justify-center">
+                            <span className="text-xs font-medium text-indigo-600 ">
                               #{task.id}
                             </span>
                           </div>
@@ -285,205 +286,14 @@ export default function OurTasksPage() {
         )}
 
         {/* Task Detail Modal */}
-        {isModalOpen && (
-          <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-            <div className="bg-white rounded-xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-              <div className="p-6">
-                <div className="flex justify-between items-start mb-6">
-                  <h2 className="text-2xl font-bold text-gray-900">
-                    Task Details
-                  </h2>
-                  <button
-                    onClick={closeModal}
-                    className="text-gray-400 hover:text-gray-600 transition-colors"
-                  >
-                    <svg
-                      className="w-6 h-6"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d="M6 18L18 6M6 6l12 12"
-                      />
-                    </svg>
-                  </button>
-                </div>
-
-                {isLoadingTask ? (
-                  <div className="text-center py-8">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600 mx-auto"></div>
-                    <p className="mt-2 text-gray-600">
-                      Loading task details...
-                    </p>
-                  </div>
-                ) : selectedTask ? (
-                  <div className="space-y-6">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Task ID
-                      </label>
-                      <div className="bg-gray-50 rounded-lg p-3">
-                        <span className="text-indigo-600 font-semibold">
-                          #{selectedTask.id}
-                        </span>
-                      </div>
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Title
-                      </label>
-                      <div className="bg-gray-50 rounded-lg p-3">
-                        <h3 className="text-lg font-semibold text-gray-900">
-                          {selectedTask.title}
-                        </h3>
-                      </div>
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Description
-                      </label>
-                      <div className="bg-gray-50 rounded-lg p-3">
-                        <p className="text-gray-700 whitespace-pre-wrap">
-                          {selectedTask.description}
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Priority
-                        </label>
-                        <div className="bg-gray-50 rounded-lg p-3">
-                          <span
-                            className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold ${getPriorityClass(
-                              selectedTask.priority
-                            )}`}
-                          >
-                            <div className="w-2 h-2 rounded-full bg-current mr-2"></div>
-                            {selectedTask.priority.toUpperCase()}
-                          </span>
-                        </div>
-                      </div>
-
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Status
-                        </label>
-                        <div className="bg-gray-50 rounded-lg p-3">
-                          <span
-                            className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${getStatusClass(
-                              selectedTask.status
-                            )}`}
-                          >
-                            <div className="w-2 h-2 rounded-full bg-current mr-2"></div>
-                            {selectedTask.status
-                              .replace("_", " ")
-                              .toUpperCase()}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Start Date
-                        </label>
-                        <div className="bg-gray-50 rounded-lg p-3">
-                          <p className="text-gray-700">
-                            {formatDate(selectedTask.start_date)}
-                          </p>
-                        </div>
-                      </div>
-
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Due Date
-                        </label>
-                        <div className="bg-gray-50 rounded-lg p-3">
-                          <p className="text-gray-700">
-                            {formatDate(selectedTask.due_date)}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Assignee
-                      </label>
-                      <div className="bg-gray-50 rounded-lg p-3">
-                        <div className="flex items-center">
-                          <div className="flex-shrink-0 h-10 w-10 bg-blue-100 rounded-full flex items-center justify-center">
-                            <svg
-                              className="w-5 h-5 text-blue-600"
-                              fill="currentColor"
-                              viewBox="0 0 20 20"
-                            >
-                              <path
-                                fillRule="evenodd"
-                                d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"
-                                clipRule="evenodd"
-                              />
-                            </svg>
-                          </div>
-                          <div className="ml-3">
-                            <p className="text-sm font-medium text-gray-900">
-                              User #{selectedTask.assignee_id}
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    {selectedTask.completed_date && (
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Completed Date
-                        </label>
-                        <div className="bg-green-50 rounded-lg p-3">
-                          <div className="flex items-center">
-                            <svg
-                              className="w-5 h-5 text-green-500 mr-2"
-                              fill="currentColor"
-                              viewBox="0 0 20 20"
-                            >
-                              <path
-                                fillRule="evenodd"
-                                d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                                clipRule="evenodd"
-                              />
-                            </svg>
-                            <span className="text-green-600 font-medium">
-                              {formatDate(selectedTask.completed_date)}
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                ) : null}
-
-                <div className="mt-6 pt-4 border-t border-gray-200">
-                  <button
-                    onClick={closeModal}
-                    className="w-full bg-gray-100 hover:bg-gray-200 text-gray-800 font-medium py-2 px-4 rounded-lg transition-colors"
-                  >
-                    Close
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
+        <TaskDetailModal
+          isOpen={isModalOpen}
+          isLoading={isLoadingTask}
+          task={selectedTask}
+          onClose={closeModal}
+        />
       </div>
     </div>
   );
 }
+    

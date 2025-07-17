@@ -1,10 +1,25 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import { createTask } from "../service";
 import type { Task } from "../type";
+import { useAuthStore } from "../useAuthStore";
 
 export default function CreateTaskPage() {
   const navigate = useNavigate();
+  const { loggedInUser } = useAuthStore();
+
+  useEffect(() => {
+    if (!loggedInUser) {
+      navigate("/");
+    }
+    if (
+      loggedInUser &&
+      !loggedInUser.roles.some((role) => role.name === "Administrator")
+    ) {
+      navigate("/access-denied");
+    }
+  }, [loggedInUser, navigate]);
+
   const [form, setForm] = useState<
     Omit<
       Task,

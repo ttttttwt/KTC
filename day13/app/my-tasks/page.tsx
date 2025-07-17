@@ -1,24 +1,42 @@
+"use client";
+
+import TaskCard from "@/components/TaskCard";
+import { deleteTask, getMyTasks } from "@/service";
+import { Task } from "@/type";
+import { getCookie } from "@/utils/cookies";
 import { useEffect, useState } from "react";
-import { getMyTasks, deleteTask } from "../service";
-import { useNavigate } from "react-router";
-import type { Task } from "../type";
-import TaskCard from "../components/TaskCard";
+import { useRouter } from "next/navigation";
 
 export default function MyTasksPage() {
   const [tasks, setTasks] = useState<Task[]>([]);
-  const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
 
   useEffect(() => {
     const fetchData = async () => {
-      const data = await getMyTasks(localStorage.getItem("user_id") || "");
-      // force the data to be in the correct format task
-      setTasks(Array.isArray(data) ? data : []);
+      try {
+        setIsLoading(true);
+        setError(null);
+        const userId =
+          typeof window !== "undefined" ? getCookie("user_id") || "" : "";
+        const data = await getMyTasks(userId);
+        // Ensure data is always an array
+        console.log("Fetched tasks:", data);
+        setTasks(Array.isArray(data) ? data : []);
+      } catch (error) {
+        console.error("Failed to fetch tasks:", error);
+        setError("Failed to load tasks. Please try again.");
+        setTasks([]);
+      } finally {
+        setIsLoading(false);
+      }
     };
     fetchData();
   }, []);
 
   const handleEditTask = (taskId: string) => {
-    navigate(`/update-task/${taskId}`);
+    router.push(`/my-tasks/update-task/${taskId}`);
   };
 
   const handleDeleteTask = async (
@@ -64,7 +82,22 @@ export default function MyTasksPage() {
         </div>
 
         {/* Tasks Grid */}
-        {tasks.length === 0 ? (
+        {isLoading ? (
+          <div className="text-center py-16">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto"></div>
+            <p className="mt-4 text-gray-500">Loading tasks...</p>
+          </div>
+        ) : error ? (
+          <div className="text-center py-16">
+            <p className="text-red-500 mb-4">{error}</p>
+            <button
+              onClick={() => window.location.reload()}
+              className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700"
+            >
+              Try Again
+            </button>
+          </div>
+        ) : tasks.length === 0 ? (
           <div className="text-center py-16">
             <svg
               className="mx-auto h-16 w-16 text-gray-400 mb-4"

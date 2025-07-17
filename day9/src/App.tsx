@@ -5,20 +5,20 @@ import {
   Outlet,
 } from "react-router";
 import LoginPage from "./pages/LoginPage";
-import AccessDeniedPage from "./pages/AccessDeniedPage";
 import MyTasksPage from "./pages/MyTasksPage";
 import CreateTaskPage from "./pages/CreateTaskPage";
 import UpdateTaskPage from "./pages/UpdateTaskPage";
 import OurTasksPage from "./pages/OurTasksPage";
-import React from "react";
 import { useNavigate } from "react-router";
+import { useAuthStore } from "./useAuthStore";
+import AccessDeniedPage from "./pages/AccessDeniedPage";
 
 const Layout = () => {
   const navigate = useNavigate();
+  const { logOut } = useAuthStore();
 
-  const handleLogout = () => {
-    localStorage.removeItem("access_token");
-    localStorage.removeItem("user_id");
+  const handleLogout = async () => {
+    await logOut();
     navigate("/");
   };
 
@@ -190,15 +190,6 @@ const Layout = () => {
   );
 };
 
-// Component bảo vệ route
-const RequireAuth = ({ children }: { children: React.ReactNode }) => {
-  const isLoggedIn = !!localStorage.getItem("access_token");
-  if (!isLoggedIn) {
-    return <AccessDeniedPage />;
-  }
-  return <>{children}</>;
-};
-
 const router = createBrowserRouter([
   {
     element: <Layout />,
@@ -209,41 +200,25 @@ const router = createBrowserRouter([
       },
       {
         path: "/my-tasks",
-        element: (
-          <RequireAuth>
-            <MyTasksPage />
-          </RequireAuth>
-        ),
+        element: <MyTasksPage />,
       },
       {
         path: "/create-task",
-        element: (
-          <RequireAuth>
-            <CreateTaskPage />
-          </RequireAuth>
-        ),
+        element: <CreateTaskPage />,
       },
       {
         path: "/update-task/:id",
-        element: (
-          <RequireAuth>
-            <UpdateTaskPage />
-          </RequireAuth>
-        ),
+        element: <UpdateTaskPage />,
       },
       {
         path: "/our-tasks",
-        element: (
-          <RequireAuth>
-            <OurTasksPage />
-          </RequireAuth>
-        ),
+        element: <OurTasksPage />,
       },
+      {
+        path: "/*",
+        element: <AccessDeniedPage />,
+      }
     ],
-  },
-  {
-    path: "/*",
-    element: <AccessDeniedPage />,
   },
 ]);
 

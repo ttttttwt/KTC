@@ -1,135 +1,84 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-import React, { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router";
-import { getTaskById, updateTask, deleteTask } from "../service";
-import type { Task } from "../type";
+"use client";
 
-export default function UpdateTaskPage() {
-  const { id } = useParams<{ id: string }>();
-  const [task, setTask] = useState<Task | null>(null);
-  const [form, setForm] = useState<Omit<
-    Task,
-    | "id"
-    | "created_time"
-    | "updated_time"
-    | "deleted_time"
-    | "created_by"
-    | "updated_by"
-    | "deleted_by"
-  > | null>(null);
-  const navigate = useNavigate();
+import React, { useState } from "react";
+import { useRouter } from "next/navigation";
+import { Task } from "@/type";
+import { getCookie } from "@/utils/cookies";
 
-  useEffect(() => {
-    if (id) {
-      getTaskById(id).then((data) => {
-        setTask(data as unknown as Task);
-        // Initialize form with task data
-        const {
-          id: _,
-          created_time,
-          updated_time,
-          deleted_time,
-          created_by,
-          updated_by,
-          deleted_by,
-          ...formData
-        } = data as unknown as Task;
-        // Set assignee_id to current user
-        const currentUserId = Number(localStorage.getItem("user_id")) || 1;
-        setForm({
-          ...formData,
-          assignee_id: currentUserId,
-        });
-      });
-    }
-  }, [id]);
+export default function CreateTask() {
+  const router = useRouter();
+  const navigate = useRouter().push;
+  const [form, setForm] = useState<
+    Omit<
+      Task,
+      | "id"
+      | "created_time"
+      | "updated_time"
+      | "deleted_time"
+      | "created_by"
+      | "updated_by"
+      | "deleted_by"
+    >
+  >({
+    title: "",
+    description: "",
+    start_date: "",
+    due_date: "",
+    completed_date: null,
+    priority: "low",
+    status: "to_do",
+    assignee_id: Number(getCookie("user_id")) || 1,
+    parent_id: null,
+    project_id: null,
+  });
 
   const handleChange = (
-    e:
-      | React.ChangeEvent<HTMLInputElement>
-      | React.ChangeEvent<HTMLTextAreaElement>
-      | React.ChangeEvent<HTMLSelectElement>
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >
   ) => {
-    if (!form) return;
-
     const { name, value, type } = e.target;
-    setForm((prev) => {
-      if (!prev) return prev;
-      return {
-        ...prev,
-        [name]:
-          type === "number" ? (value === "" ? null : Number(value)) : value,
-      };
-    });
+    setForm((prev) => ({
+      ...prev,
+      [name]: type === "number" ? (value === "" ? null : Number(value)) : value,
+    }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!form || !id || !task) return;
-
-    const user_id = Number(localStorage.getItem("user_id")) || 1;
+    const user_id = Number(getCookie("user_id")) || 1;
     const now = new Date().toISOString();
-
-    const taskData = {
-      ...task,
+    // Không truyền id, server sẽ tự sinh
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { /* id, */ ...taskData } = {
       ...form,
+      created_time: now,
       updated_time: now,
+      deleted_time: null,
+      created_by: user_id,
       updated_by: user_id,
+      deleted_by: null,
     };
-
-    await updateTask(id, taskData);
+    router.push("/my-tasks");
     navigate("/my-tasks");
   };
-
-  const handleDeleteTask = async () => {
-    if (!id || !task) return;
-
-    if (
-      window.confirm(
-        `Are you sure you want to delete "${task.title}"? This action cannot be undone.`
-      )
-    ) {
-      try {
-        await deleteTask(id);
-        navigate("/my-tasks");
-      } catch (error) {
-        console.error("Failed to delete task:", error);
-        alert("Failed to delete task. Please try again.");
-      }
-    }
-  };
-
-  if (!task || !form) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-indigo-600 mx-auto mb-4"></div>
-          <h2 className="text-xl font-semibold text-gray-700">
-            Loading task details...
-          </h2>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="text-center mb-10">
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">Update Task</h1>
+          <h1 className="text-4xl font-bold text-gray-900 mb-2">
+            Create New Task
+          </h1>
           <p className="text-gray-600">
-            Modify task details and track progress
+            Fill in the details to create a new task
           </p>
-          <div className="mt-4 inline-flex items-center px-4 py-2 bg-white rounded-lg shadow-sm border">
-            <span className="text-sm text-gray-500 mr-2">Task ID:</span>
-            <span className="font-semibold text-indigo-600">#{id}</span>
-          </div>
         </div>
 
         {/* Form Container */}
         <div className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
-          <div className="px-8 py-6 bg-gradient-to-r from-blue-500 to-indigo-600">
+          <div className="px-8 py-6 bg-gradient-to-r from-indigo-500 to-purple-600">
             <div className="flex items-center space-x-3">
               <svg
                 className="w-8 h-8 text-white"
@@ -141,11 +90,11 @@ export default function UpdateTaskPage() {
                   strokeLinecap="round"
                   strokeLinejoin="round"
                   strokeWidth="2"
-                  d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                  d="M12 6v6m0 0v6m0-6h6m-6 0H6"
                 />
               </svg>
               <h2 className="text-2xl font-bold text-white">
-                Edit Task Information
+                Task Information
               </h2>
             </div>
           </div>
@@ -243,7 +192,7 @@ export default function UpdateTaskPage() {
                     id="start_date"
                     name="start_date"
                     required
-                    value={form.start_date?.slice(0, 10)}
+                    value={form.start_date}
                     onChange={handleChange}
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition duration-200"
                   />
@@ -261,7 +210,7 @@ export default function UpdateTaskPage() {
                     id="due_date"
                     name="due_date"
                     required
-                    value={form.due_date?.slice(0, 10)}
+                    value={form.due_date}
                     onChange={handleChange}
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition duration-200"
                   />
@@ -278,11 +227,7 @@ export default function UpdateTaskPage() {
                     type="date"
                     id="completed_date"
                     name="completed_date"
-                    value={
-                      form.completed_date
-                        ? form.completed_date.slice(0, 10)
-                        : ""
-                    }
+                    value={form.completed_date || ""}
                     onChange={handleChange}
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition duration-200"
                   />
@@ -385,7 +330,7 @@ export default function UpdateTaskPage() {
                     type="number"
                     id="assignee_id"
                     name="assignee_id"
-                    value={form.assignee_id ?? ""}
+                    value={form.assignee_id}
                     readOnly
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-100 text-gray-600 cursor-not-allowed"
                   />
@@ -435,24 +380,16 @@ export default function UpdateTaskPage() {
             {/* Action Buttons */}
             <div className="flex flex-col sm:flex-row gap-4 pt-6 border-t border-gray-200">
               <button
-                type="button"
                 onClick={() => navigate("/my-tasks")}
                 className="flex-1 py-3 px-6 border border-gray-300 text-gray-700 font-semibold rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition duration-200"
               >
                 Cancel
               </button>
               <button
-                type="button"
-                onClick={handleDeleteTask}
-                className="flex-1 py-3 px-6 bg-gradient-to-r from-red-600 to-red-700 text-white font-semibold rounded-lg hover:from-red-700 hover:to-red-800 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transform transition duration-200 hover:scale-[1.02] active:scale-[0.98]"
-              >
-                Delete Task
-              </button>
-              <button
                 type="submit"
-                className="flex-1 py-3 px-6 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold rounded-lg hover:from-blue-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transform transition duration-200 hover:scale-[1.02] active:scale-[0.98]"
+                className="flex-1 py-3 px-6 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-semibold rounded-lg hover:from-indigo-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transform transition duration-200 hover:scale-[1.02] active:scale-[0.98]"
               >
-                Update Task
+                Create Task
               </button>
             </div>
           </form>

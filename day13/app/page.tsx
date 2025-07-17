@@ -1,6 +1,11 @@
+"use client";
+
+import React from "react";
 import { useForm } from "react-hook-form";
-import { useNavigate } from "react-router";
-import { useAuthStore } from "../useAuthStore";
+import { login } from "../service";
+import { setCookie } from "@/utils/cookies";
+import { HiExclamationCircle } from "react-icons/hi";
+import { FiUser, FiLock } from "react-icons/fi";
 
 type LoginFormData = {
   username: string;
@@ -8,28 +13,27 @@ type LoginFormData = {
 };
 
 export default function LoginPage() {
-  const { loggedInUser } = useAuthStore();
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm<LoginFormData>();
-
-  const navigate = useNavigate();
-  const { login, loading, error } = useAuthStore();
-
-  if (loggedInUser) {
-    // If user is already logged in, redirect to My Tasks page
-    window.location.href = "/my-tasks";
-    return null; // Prevent rendering the login page
-  }
+  const [loginError, setLoginError] = React.useState<string | null>(null);
 
   const onSubmit = async (data: LoginFormData) => {
-    await login({
-      username: data.username,
-      password: data.password,
-      navigate,
-    });
+    setLoginError(null);
+    try {
+      const res = await login(data.username, data.password);
+      if (res.access_token) {
+        setCookie("access_token", res.access_token, 7);
+        setCookie("user_id", res.loggedInUser.id.toString(), 7);
+        window.location.href = "/my-tasks"; // Redirect to My Tasks page
+      } else {
+        setLoginError(res.message || "Login failed");
+      }
+    } catch {
+      setLoginError("Login failed");
+    }
   };
 
   return (
@@ -46,21 +50,11 @@ export default function LoginPage() {
         {/* Login Form */}
         <div className="bg-white rounded-2xl shadow-xl p-8 border border-gray-100">
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-            {error && (
+            {loginError && (
               <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
                 <div className="flex items-center">
-                  <svg
-                    className="w-4 h-4 mr-2"
-                    fill="currentColor"
-                    viewBox="0 0 20 20"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                  {error?.message || "Login failed"}
+                  <HiExclamationCircle className="w-4 h-4 mr-2" />
+                  {loginError}
                 </div>
               </div>
             )}
@@ -86,34 +80,12 @@ export default function LoginPage() {
                   placeholder="Enter your username"
                 />
                 <div className="absolute inset-y-0 right-0 flex items-center pr-3">
-                  <svg
-                    className="w-5 h-5 text-gray-400"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M16 7a4 4 0 11-8 0 4 4 0 018 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
-                    />
-                  </svg>
+                  <FiUser className="w-5 h-5 text-gray-400" />
                 </div>
               </div>
               {errors.username && (
                 <p className="text-red-500 text-xs mt-1 flex items-center">
-                  <svg
-                    className="w-3 h-3 mr-1"
-                    fill="currentColor"
-                    viewBox="0 0 20 20"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
+                  <HiExclamationCircle className="w-3 h-3 mr-1" />
                   {errors.username.message as string}
                 </p>
               )}
@@ -140,34 +112,12 @@ export default function LoginPage() {
                   placeholder="Enter your password"
                 />
                 <div className="absolute inset-y-0 right-0 flex items-center pr-3">
-                  <svg
-                    className="w-5 h-5 text-gray-400"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
-                    />
-                  </svg>
+                  <FiLock className="w-5 h-5 text-gray-400" />
                 </div>
               </div>
               {errors.password && (
                 <p className="text-red-500 text-xs mt-1 flex items-center">
-                  <svg
-                    className="w-3 h-3 mr-1"
-                    fill="currentColor"
-                    viewBox="0 0 20 20"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
+                  <HiExclamationCircle className="w-3 h-3 mr-1" />
                   {errors.password.message as string}
                 </p>
               )}
@@ -176,17 +126,16 @@ export default function LoginPage() {
             {/* Login Button */}
             <button
               type="submit"
-              disabled={loading}
-              className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold py-3 px-4 rounded-lg hover:from-blue-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transform transition duration-200 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold py-3 px-4 rounded-lg hover:from-blue-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transform transition duration-200 hover:scale-[1.02] active:scale-[0.98]"
             >
-              {loading ? "Signing In..." : "Sign In"}
+              Sign In
             </button>
           </form>
 
           {/* Footer */}
           <div className="mt-6 text-center">
             <p className="text-sm text-gray-600">
-              Don't have an account?{" "}
+              Don&apos;t have an account?{" "}
               <a
                 href="#"
                 className="font-medium text-blue-600 hover:text-blue-500 transition duration-200"

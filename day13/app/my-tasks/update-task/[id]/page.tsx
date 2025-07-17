@@ -1,11 +1,15 @@
+"use client";
+
 /* eslint-disable @typescript-eslint/no-unused-vars */
+import { Task } from "@/type";
 import React, { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router";
-import { getTaskById, updateTask, deleteTask } from "../service";
-import type { Task } from "../type";
+import { useParams, useRouter } from "next/navigation";
+import { deleteTask, getTaskById, updateTask } from "@/service";
+import { getCookie } from "@/utils/cookies";
 
 export default function UpdateTaskPage() {
   const { id } = useParams<{ id: string }>();
+  const router = useRouter();
   const [task, setTask] = useState<Task | null>(null);
   const [form, setForm] = useState<Omit<
     Task,
@@ -17,12 +21,11 @@ export default function UpdateTaskPage() {
     | "updated_by"
     | "deleted_by"
   > | null>(null);
-  const navigate = useNavigate();
 
   useEffect(() => {
     if (id) {
       getTaskById(id).then((data) => {
-        setTask(data as unknown as Task);
+        setTask(data);
         // Initialize form with task data
         const {
           id: _,
@@ -33,9 +36,9 @@ export default function UpdateTaskPage() {
           updated_by,
           deleted_by,
           ...formData
-        } = data as unknown as Task;
+        } = data;
         // Set assignee_id to current user
-        const currentUserId = Number(localStorage.getItem("user_id")) || 1;
+        const currentUserId = Number(getCookie("user_id")) || 1;
         setForm({
           ...formData,
           assignee_id: currentUserId,
@@ -67,7 +70,7 @@ export default function UpdateTaskPage() {
     e.preventDefault();
     if (!form || !id || !task) return;
 
-    const user_id = Number(localStorage.getItem("user_id")) || 1;
+    const user_id = Number(getCookie("user_id")) || 1;
     const now = new Date().toISOString();
 
     const taskData = {
@@ -78,7 +81,7 @@ export default function UpdateTaskPage() {
     };
 
     await updateTask(id, taskData);
-    navigate("/my-tasks");
+    router.push("/my-tasks");
   };
 
   const handleDeleteTask = async () => {
@@ -91,7 +94,7 @@ export default function UpdateTaskPage() {
     ) {
       try {
         await deleteTask(id);
-        navigate("/my-tasks");
+        router.push("/my-tasks");
       } catch (error) {
         console.error("Failed to delete task:", error);
         alert("Failed to delete task. Please try again.");
@@ -436,7 +439,7 @@ export default function UpdateTaskPage() {
             <div className="flex flex-col sm:flex-row gap-4 pt-6 border-t border-gray-200">
               <button
                 type="button"
-                onClick={() => navigate("/my-tasks")}
+                onClick={() => router.push("/my-tasks")}
                 className="flex-1 py-3 px-6 border border-gray-300 text-gray-700 font-semibold rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition duration-200"
               >
                 Cancel

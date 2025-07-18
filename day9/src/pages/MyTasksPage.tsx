@@ -3,6 +3,7 @@ import { getMyTasks, deleteTask } from "../service";
 import { useNavigate } from "react-router";
 import type { Task } from "../type";
 import TaskCard from "../components/TaskCard";
+import { HiOutlineClipboardList } from "react-icons/hi";
 
 export default function MyTasksPage() {
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -66,19 +67,7 @@ export default function MyTasksPage() {
         {/* Tasks Grid */}
         {tasks.length === 0 ? (
           <div className="text-center py-16">
-            <svg
-              className="mx-auto h-16 w-16 text-gray-400 mb-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="1.5"
-                d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
-              />
-            </svg>
+            <HiOutlineClipboardList className="mx-auto h-16 w-16 text-gray-400 mb-4" />
             <h3 className="text-lg font-medium text-gray-900 mb-2">
               No tasks found
             </h3>

@@ -12,6 +12,14 @@ import OurTasksPage from "./pages/OurTasksPage";
 import { useNavigate } from "react-router";
 import { useAuthStore } from "./useAuthStore";
 import AccessDeniedPage from "./pages/AccessDeniedPage";
+import {
+  HiOutlineLogin,
+  HiOutlineClipboardList,
+  HiOutlinePlus,
+  HiOutlineUsers,
+  HiOutlineLogout,
+  HiOutlineMenu,
+} from "react-icons/hi";
 
 const Layout = () => {
   const navigate = useNavigate();
@@ -45,19 +53,8 @@ const Layout = () => {
                     }`
                   }
                 >
-                  <svg
-                    className="w-4 h-4"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"
-                    />
-                  </svg>
+                  {/* Thay SVG bằng react-icon */}
+                  <HiOutlineLogin className="w-4 h-4" />
                   <span>Login</span>
                 </NavLink>
 
@@ -71,19 +68,8 @@ const Layout = () => {
                     }`
                   }
                 >
-                  <svg
-                    className="w-4 h-4"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
-                    />
-                  </svg>
+                  {/* Thay SVG bằng react-icon */}
+                  <HiOutlineClipboardList className="w-4 h-4" />
                   <span>My Tasks</span>
                 </NavLink>
 
@@ -97,19 +83,8 @@ const Layout = () => {
                     }`
                   }
                 >
-                  <svg
-                    className="w-4 h-4"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M12 6v6m0 0v6m0-6h6m-6 0H6"
-                    />
-                  </svg>
+                  {/* Thay SVG bằng react-icon */}
+                  <HiOutlinePlus className="w-4 h-4" />
                   <span>Create Task</span>
                 </NavLink>
 
@@ -123,19 +98,8 @@ const Layout = () => {
                     }`
                   }
                 >
-                  <svg
-                    className="w-4 h-4"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
-                    />
-                  </svg>
+                  {/* Thay SVG bằng react-icon */}
+                  <HiOutlineUsers className="w-4 h-4" />
                   <span>Our Tasks</span>
                 </NavLink>
               </div>
@@ -147,19 +111,8 @@ const Layout = () => {
                 onClick={handleLogout}
                 className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200 flex items-center space-x-2"
               >
-                <svg
-                  className="w-4 h-4"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
-                  />
-                </svg>
+                {/* Thay SVG bằng react-icon */}
+                <HiOutlineLogout className="w-4 h-4" />
                 <span>Logout</span>
               </button>
             </div>
@@ -167,19 +120,8 @@ const Layout = () => {
             {/* Mobile menu button */}
             <div className="md:hidden">
               <button className="bg-gray-800 inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-white hover:bg-gray-700">
-                <svg
-                  className="h-6 w-6"
-                  stroke="currentColor"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M4 6h16M4 12h16M4 18h16"
-                  />
-                </svg>
+                {/* Thay SVG bằng react-icon */}
+                <HiOutlineMenu className="h-6 w-6" />
               </button>
             </div>
           </div>
@@ -217,7 +159,7 @@ const router = createBrowserRouter([
       {
         path: "/*",
         element: <AccessDeniedPage />,
-      }
+      },
     ],
   },
 ]);

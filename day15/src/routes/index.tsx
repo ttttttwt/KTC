@@ -10,7 +10,6 @@ import UserList from "../pages/UserList";
 export const routes = [
   {
     path: "/",
-    index: true,
     name: "Login",
     showOnMenu: false,
     element: <LoginPage />,

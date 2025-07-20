@@ -10,9 +10,8 @@ function App() {
 
   const router = createBrowserRouter([
     {
-      path: "/",
       element: <MainLayout />,
-      children: generateRoutes,
+      children: generateRoutes ,
     },
     {
       path: "*",

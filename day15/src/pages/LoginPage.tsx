@@ -7,6 +7,7 @@ import {
   AiOutlineLock,
 } from "react-icons/ai";
 import { HiExclamationCircle } from "react-icons/hi";
+import { useEffect } from "react";
 
 type LoginFormData = {
   username: string;
@@ -23,17 +24,20 @@ export default function LoginPage() {
 
   const navigate = useNavigate();
 
-  if (loggedInUser) {
-    navigate("/my-tasks");
-  }
+  useEffect(() => {
+    console.log("LoginPage mounted");
+    if (loggedInUser) {
+      navigate("/my-tasks");
+    }
+  }, [loggedInUser, navigate]);
 
   const onSubmit = async (data: LoginFormData) => {
     await login({
       username: data.username,
       password: data.password,
-      navigate,
     });
   };
+  console.log("LoginPage rendered");
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex flex-col items-center justify-center p-4">
